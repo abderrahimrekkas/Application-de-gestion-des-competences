@@ -1,0 +1,51 @@
+version: '3.8'
+services:
+  mongo:
+    image: mongo
+    restart: always
+    container_name: mongodb
+    ports:
+      - '27017:27017'
+    volumes:
+      - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js
+
+  auth-service:
+    build: ./auth-service
+    restart: always
+    ports:
+      - '5001:5001'
+    environment:
+      - MONGO_URI=mongodb://mongo:27017/authdb
+      - JWT_SECRET=secretkey
+      - AUTH_PORT=5001
+    depends_on:
+      - mongo
+
+  api-gateway:
+    build: ./api-gateway
+    restart: always
+    ports:
+      - '5000:5000'
+    environment:
+      - GATEWAY_PORT=5000
+      - JWT_SECRET=secretkey
+    depends_on:
+      - auth-service
+
+  brief-service:
+    image: node:18
+    command: bash -c "npm install && node server.js"
+    working_dir: /app
+    volumes:
+      - ./brief-service:/app
+    ports:
+      - '5002:5002'
+
+  apprenant-service:
+    image: node:18
+    command: bash -c "npm install && node server.js"
+    working_dir: /app
+    volumes:
+      - ./apprenant-service:/app
+    ports:
+      - '5003:5003'
