@@ -14,7 +14,7 @@ app.use(morgan('dev'));
 app.use('/api/auth', authRoutes);
 
 app.get('/', (req, res) => {
-  res.send('Auth Service is running 🚀');
+  res.send('Auth Service is running yes yes ');
 });
 
 module.exports = app;
